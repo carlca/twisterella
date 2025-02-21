@@ -2,7 +2,7 @@ package com.carlca.twisterella
 
 import com.bitwig.extension.controller.api.*
 
-object Settings:
+object TwisterellaSettings:
   // enum PanSendMode derives CanEqual:
   //   case `FX Send`, `Pan`
   // enum TrackMode derives CanEqual:

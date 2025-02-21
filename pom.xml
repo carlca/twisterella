@@ -40,6 +40,11 @@
             <artifactId>json</artifactId>
             <version>20231013</version>
         </dependency>
+        <dependency>
+            <groupId>org.tomlj</groupId>
+            <artifactId>tomlj</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
     <profiles>
         <profile>
@@ -115,6 +120,13 @@
                                     </excludes>
                                 </filter>
                             </filters>
+                            <relocations>
+                                <relocation>
+                                    <!-- Relocate Antlr to avoid conflicts with Bitwig -->
+                                    <pattern>org.antlr</pattern>
+                                    <shadedPattern>org.tomlj.internal.antlr</shadedPattern>
+                              </relocation>
+                            </relocations>
                             <minimizeJar>true</minimizeJar>
                         </configuration>
                     </execution>

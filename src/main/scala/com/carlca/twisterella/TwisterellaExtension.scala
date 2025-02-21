@@ -6,7 +6,7 @@ import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.*
 import com.carlca.config.Config
 import com.carlca.logger.Log
-import com.carlca.twisterella.Settings
+import com.carlca.twisterella.TwisterellaSettings
 
 class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: ControllerHost)
     extends ControllerExtension(definition, host):
@@ -17,7 +17,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     val host = getHost
     // MidiMixLights.init(host)
     Config.init(APP_NAME)
-    Settings.init(host)
+    TwisterellaSettings.init(host)
     // Tracks.init(host)
     initEvents(host)
   override def exit: Unit = None

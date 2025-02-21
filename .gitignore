@@ -25,9 +25,12 @@ project/target/
 
 # Others
 .metals/
-# .vscode/
 .bloop/
 .bsp/
 Dump/
 metals.sbt
+
+#mill
 out/
+mill
+.mill-version

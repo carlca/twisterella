@@ -30,3 +30,4 @@ project/target/
 .bsp/
 Dump/
 metals.sbt
+out/

@@ -5,6 +5,8 @@ import com.bitwig.extension.controller.api.{HardwareLightVisualState, InternalHa
 import com.carlca.twisterella.TwisterellaExtension
 import java.util.function.Consumer
 import java.util.function.Supplier
+// Add the import
+import com.carlca.twisterella.twister.TwisterLight.AnimationState
 
 /** The RGB light on a twister knob. */
 class TwisterRGBLight(extension: TwisterellaExtension, lightMidiInfo: LightMidiInfo, color: Color) extends TwisterLight(extension, lightMidiInfo.animation, TwisterRGBLight.ANIMATION_START_VALUE, TwisterRGBLight.BRIGHTNESS_START_VALUE):
@@ -46,7 +48,9 @@ class TwisterRGBLight(extension: TwisterellaExtension, lightMidiInfo: LightMidiI
 
   override def lightOff(): Unit =
     setAnimationState(AnimationState.OFF)
+
     light.setColor(Color.blackColor())
+
     // Force MIDI to be sent immediately
     midiOut.sendMidi(midiInfo.statusByte, midiInfo.cc, 0)
 

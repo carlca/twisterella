@@ -14,32 +14,6 @@ import scala.collection.mutable
 class Twister(extension: TwisterellaExtension):
   import Twister.MidiChannel
   import Twister.Bank
-  /** Twister MIDI channels. Zero indexed. */
-  object MidiChannel:
-    val ENCODER: Int = 0
-    val BUTTON: Int = 1
-    val RGB_ANIMATION: Int = 2
-    val SIDE_BUTTON: Int = 3
-    val SYSTEM: Int = 3
-    val SHIFT: Int = 4
-    val RING_ANIMATION: Int = 5
-    val SEQUENCER: Int = 7
-
-  /** A single bank of Twister hardware. */
-  class Bank:
-    import Bank._
-    val knobs: Array[TwisterKnob] = Array.ofDim[TwisterKnob](NUM_KNOBS)
-    val leftSideButtons: Array[TwisterButton] = Array.ofDim[TwisterButton](NUM_LEFT_SIDE_BUTTONS)
-    val rightSideButtons: Array[TwisterButton] = Array.ofDim[TwisterButton](NUM_RIGHT_SIDE_BUTTONS)
-
-  object Bank:
-    val NUM_KNOBS: Int = 16
-    val NUM_LEFT_SIDE_BUTTONS: Int = 3
-    val NUM_RIGHT_SIDE_BUTTONS: Int = 3
-    val NUM_SIDE_BUTTONS: Int = NUM_LEFT_SIDE_BUTTONS + NUM_RIGHT_SIDE_BUTTONS
-
-  import Twister.Bank._
-  val banks: Array[Bank] = Array.ofDim[Bank](NUM_BANKS)
 
   private val midiOut: MidiOut = extension.midiOut
   private val hardwareSurface: HardwareSurface = extension.hardwareSurface
@@ -47,6 +21,8 @@ class Twister(extension: TwisterellaExtension):
 
   private var popupEnabled: Boolean = false
   private var activeBank: Int = -1
+
+  val banks: Array[Bank] = Array.ofDim[Bank](Twister.NUM_BANKS)
 
   createHardware(extension)
   createSequencerInput(extension.midiIn)
@@ -59,7 +35,7 @@ class Twister(extension: TwisterellaExtension):
    */
   def nextBank(): Unit =
     val nextBank = activeBank + 1
-    if nextBank >= NUM_BANKS then return
+    if nextBank >= Twister.NUM_BANKS then return
     setActiveBank(nextBank)
 
   /**
@@ -78,7 +54,7 @@ class Twister(extension: TwisterellaExtension):
    * @param index Desired bank index.
    */
   def setActiveBank(index: Int): Unit =
-    assert(index >= 0 && index < NUM_BANKS, "index is invalid")
+    assert(index >= 0 && index < Twister.NUM_BANKS, "index is invalid")
 
     if activeBank == index then return // already active, do nothing
 
@@ -104,7 +80,7 @@ class Twister(extension: TwisterellaExtension):
   /** Creates all the hardware for the Twister. */
   private def createHardware(extension: TwisterellaExtension): Unit =
     val sideButtonsFirstLeftCC = 8
-    val sideButtonsFirstRightCC = sideButtonsFirstLeftCC + Bank.NUM_LEFT_SIDE_BUTTONS
+    val sideButtonsFirstRightCC = sideButtonsFirstLeftCC + Twister.Bank.NUM_LEFT_SIDE_BUTTONS
 
     for bank <- 0 until banks.length do
       banks(bank) = new Bank()
@@ -113,8 +89,8 @@ class Twister(extension: TwisterellaExtension):
       val hardwareLSBs = banks(bank).leftSideButtons
       val hardwareRSBs = banks(bank).rightSideButtons
 
-      val knobsBankOffset = Bank.NUM_KNOBS * bank
-      val sideButtonsBankOffset = Bank.NUM_SIDE_BUTTONS * bank
+      val knobsBankOffset = Twister.Bank.NUM_KNOBS * bank
+      val sideButtonsBankOffset = Twister.Bank.NUM_SIDE_BUTTONS * bank
 
       for knob <- 0 until hardwareKnobs.length do
         val cc = knob + knobsBankOffset
@@ -164,3 +140,27 @@ class Twister(extension: TwisterellaExtension):
 
 object Twister:
   val NUM_BANKS: Int = 4
+
+  /** Twister MIDI channels. Zero indexed. */
+  object MidiChannel:
+    val ENCODER: Int = 0
+    val BUTTON: Int = 1
+    val RGB_ANIMATION: Int = 2
+    val SIDE_BUTTON: Int = 3
+    val SYSTEM: Int = 3
+    val SHIFT: Int = 4
+    val RING_ANIMATION: Int = 5
+    val SEQUENCER: Int = 7
+
+  /** A single bank of Twister hardware. */
+  class Bank:
+    import Bank._
+    val knobs: Array[TwisterKnob] = Array.ofDim[TwisterKnob](NUM_KNOBS)
+    val leftSideButtons: Array[TwisterButton] = Array.ofDim[TwisterButton](NUM_LEFT_SIDE_BUTTONS)
+    val rightSideButtons: Array[TwisterButton] = Array.ofDim[TwisterButton](NUM_RIGHT_SIDE_BUTTONS)
+
+  object Bank:
+    val NUM_KNOBS: Int = 16
+    val NUM_LEFT_SIDE_BUTTONS: Int = 3
+    val NUM_RIGHT_SIDE_BUTTONS: Int = 3
+    val NUM_SIDE_BUTTONS: Int = NUM_LEFT_SIDE_BUTTONS + NUM_RIGHT_SIDE_BUTTONS

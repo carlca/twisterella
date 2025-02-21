@@ -38,8 +38,8 @@ class TwisterButton(extension: TwisterellaExtension, midiInfo: MidiInfo, idPrefi
 
   button.pressedAction().setActionMatcher(midiIn.createCCActionMatcher(channel, cc, PRESSED_VALUE))
   button.releasedAction().setActionMatcher(midiIn.createCCActionMatcher(channel, cc, RELEASED_VALUE))
-  button.pressedAction().setBinding(host.createAction(ActionAdapter(handlePressed), () => "Handle button pressed"))
-  button.releasedAction().setBinding(host.createAction(ActionAdapter(handleReleased), () => "Handle button released"))
+  button.pressedAction().setBinding(host.createAction(() => handlePressed(), () => "Handle button pressed"))
+  button.releasedAction().setBinding(host.createAction(() => handleReleased(), () => "Handle button released"))
 
   longPressTimer.setRepeats(false)
 

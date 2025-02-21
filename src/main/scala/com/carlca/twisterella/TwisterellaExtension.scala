@@ -3,7 +3,28 @@ package twisterella
 
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.ControllerExtension
-import com.bitwig.extension.controller.api.*
+import com.bitwig.extension.controller.api.Bank;
+import com.bitwig.extension.controller.api.ControllerHost;
+import com.bitwig.extension.controller.api.CursorDevice;
+import com.bitwig.extension.controller.api.CursorRemoteControlsPage;
+import com.bitwig.extension.controller.api.CursorTrack;
+import com.bitwig.extension.controller.api.Device;
+import com.bitwig.extension.controller.api.DeviceBank;
+import com.bitwig.extension.controller.api.DocumentState;
+import com.bitwig.extension.controller.api.HardwareSurface;
+import com.bitwig.extension.controller.api.MidiIn;
+import com.bitwig.extension.controller.api.MidiOut;
+import com.bitwig.extension.controller.api.Parameter;
+import com.bitwig.extension.controller.api.PinnableCursor;
+import com.bitwig.extension.controller.api.PinnableCursorDevice;
+import com.bitwig.extension.controller.api.Preferences;
+import com.bitwig.extension.controller.api.RemoteControl;
+import com.bitwig.extension.controller.api.Send;
+import com.bitwig.extension.controller.api.SendBank;
+import com.bitwig.extension.controller.api.SettableBooleanValue;
+import com.bitwig.extension.controller.api.SettableRangedValue;
+import com.bitwig.extension.controller.api.SettableEnumValue;
+import com.bitwig.extension.controller.api.TrackBank;
 import com.carlca.config.Config
 import com.carlca.logger.Log
 import com.carlca.twisterella.TwisterellaSettings
@@ -12,6 +33,9 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     extends ControllerExtension(definition, host):
   private val APP_NAME                    = "com.carlca.Twisterella"
   private var last_data1: Int = 0
+  val hardwareSurface: HardwareSurface = host.createHardwareSurface()
+  val midiIn: MidiIn = host.getMidiInPort(0)
+  val midiOut: MidiOut = host.getMidiOutPort(0)
 
   override def init: Unit =
     val host = getHost
@@ -33,10 +57,10 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   end initEvents
 
   private def initOnMidiCallback(host: ControllerHost): Unit =
-    host.getMidiInPort(0).setMidiCallback((a, b, c) => onMidi0(ShortMidiMessage(a, b, c)))
+    midiIn.setMidiCallback((a, b, c) => onMidi0(ShortMidiMessage(a, b, c)))
 
   private def initOnSysexCallback(host: ControllerHost): Unit =
-    host.getMidiInPort(0).setSysexCallback(onSysex0(_))
+    midiIn.setSysexCallback(onSysex0(_))
 
   private def onMidi0(msg: ShortMidiMessage): Unit =
     // var status = msg.status()

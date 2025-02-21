@@ -10,34 +10,20 @@ class TwisterKnob(extension: TwisterellaExtension, midiInfo: KnobMidiInfo, color
 
   def this(extension: TwisterellaExtension, midiInfo: KnobMidiInfo) = this(extension, midiInfo, Color.nullColor())
 
-  private val knob: RelativeHardwareKnob = extension.hardwareSurface.createRelativeHardwareKnob(s"Knob ${midiInfo.encoder.cc}")
-  knob.setAdjustValueMatcher(extension.midiIn.createRelativeBinOffsetCCValueMatcher(midiInfo.encoder.channel, midiInfo.encoder.cc, FULL_ROTATION))
+  val button: TwisterButton = TwisterButton(extension, midiInfo.button, "Knob")
+  val rgbLight: TwisterRGBLight = TwisterRGBLight(extension, midiInfo.rgbLight, color)
+  val ringLight: TwisterRingLight = TwisterRingLight(extension, midiInfo.ringLight)
+  val knob: RelativeHardwareKnob = extension.hardwareSurface.createRelativeHardwareKnob(s"Knob ${midiInfo.encoder.cc}")
+  val shiftKnob: RelativeHardwareKnob = extension.hardwareSurface.createRelativeHardwareKnob(s"Shift Knob ${midiInfo.encoder.cc}")
+  val shiftRingLight: TwisterRingLight = TwisterRingLight(extension, LightMidiInfo(shiftChannel, midiInfo.ringLight.animation.channel, midiInfo.encoder.cc))
 
-  private val _button: TwisterButton = TwisterButton(extension, midiInfo.button, "Knob")
-  private val _rgbLight: TwisterRGBLight = TwisterRGBLight(extension, midiInfo.rgbLight, color)
-  private val _ringLight: TwisterRingLight = TwisterRingLight(extension, midiInfo.ringLight)
+  knob.setAdjustValueMatcher(extension.midiIn.createRelativeBinOffsetCCValueMatcher(midiInfo.encoder.channel, midiInfo.encoder.cc, FULL_ROTATION))
+  shiftKnob.setAdjustValueMatcher(extension.midiIn.createRelativeBinOffsetCCValueMatcher(shiftChannel, midiInfo.encoder.cc, FULL_ROTATION))
 
   private val shiftChannel = Twister.MidiChannel.SHIFT
-
-  private val shiftKnob: RelativeHardwareKnob = extension.hardwareSurface.createRelativeHardwareKnob(s"Shift Knob ${midiInfo.encoder.cc}")
-  shiftKnob.setAdjustValueMatcher(extension.midiIn.createRelativeBinOffsetCCValueMatcher(shiftChannel, midiInfo.encoder.cc, FULL_ROTATION))
-  private val _shiftRingLight: TwisterRingLight = TwisterRingLight(extension, LightMidiInfo(shiftChannel, midiInfo.ringLight.animation.channel, midiInfo.encoder.cc))
-
   private var isFineSensitivity: Boolean = false
   private var fineSensitivity: Double = 0.25
   private var sensitivity: Double = 1.0
-
-  /** The associated button for this knob. */
-  def button(): TwisterButton = _button
-
-  /** The associated RGB light for this knob. */
-  def rgbLight(): TwisterRGBLight = _rgbLight
-
-  /** The associated ring light for this knob. */
-  def ringLight(): TwisterRingLight = _ringLight
-
-  /** The associated shift ring light for this knob. */
-  def shiftRingLight(): TwisterRingLight = _shiftRingLight
 
   /** The value of the target that this knob has been bound to (0-1). */
   def targetValue(): DoubleValue = knob.targetValue()

@@ -51,7 +51,11 @@ class TwisterRingLight(extension: TwisterellaExtension, lightMidiInfo: LightMidi
    */
   def observeValue(value: SettableRangedValue): Unit =
     value.markInterested()
-    value.addValueObserver(128, setRawValue)
+    value.addValueObserver(128, new com.bitwig.extension.callback.IntegerValueChangedCallback {
+      override def valueChanged(newValue: Int): Unit = {
+        setRawValue(newValue)
+      }
+    })
 
   /**
    * Makes this light an observer of the passed in value.
@@ -60,7 +64,11 @@ class TwisterRingLight(extension: TwisterellaExtension, lightMidiInfo: LightMidi
    */
   def observeValue(value: DoubleValue): Unit =
     value.markInterested()
-    value.addValueObserver(setValue)
+    value.addValueObserver(new com.bitwig.extension.callback.DoubleValueChangedCallback {
+      override def valueChanged(newValue: Double): Unit = {
+        setValue(newValue)
+      }
+    })
 
   /**
    * Makes this light an observer of the passed in wrapper.
@@ -68,7 +76,11 @@ class TwisterRingLight(extension: TwisterellaExtension, lightMidiInfo: LightMidi
    * @param wrapper The wrapper to observe.
    */
   def observeValue(wrapper: CursorNormalizedValue): Unit =
-    wrapper.addValueObserver(setCursorValue)
+    wrapper.addValueObserver(new com.bitwig.extension.callback.DoubleValueChangedCallback {
+      override def valueChanged(newValue: Double): Unit = {
+        setCursorValue(newValue)
+      }
+    })
 
   override def lightOff(): Unit =
     setAnimationState(AnimationState.OFF)

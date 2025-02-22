@@ -23,10 +23,18 @@ class CursorNormalizedValue:
   def this(cursorTrack: CursorTrack, trackBank: TrackBank) =
     this()
     trackBank.channelCount().markInterested()
-    trackBank.channelCount().addValueObserver(setCursorCount)
+    trackBank.channelCount().addValueObserver(new com.bitwig.extension.callback.IntegerValueChangedCallback { // Explicit callback
+      override def valueChanged(count: Int): Unit = {
+        setCursorCount(count)
+      }
+    })
 
     cursorTrack.position().markInterested()
-    cursorTrack.position().addValueObserver(setCursorIndex)
+    cursorTrack.position().addValueObserver(new com.bitwig.extension.callback.IntegerValueChangedCallback { // Explicit callback
+      override def valueChanged(index: Int): Unit = {
+        setCursorIndex(index)
+      }
+    })
 
   /**
    * Creates a wrapper for a device cursor.
@@ -37,10 +45,18 @@ class CursorNormalizedValue:
   def this(cursorDevice: CursorDevice, deviceBank: DeviceBank) =
     this()
     deviceBank.itemCount().markInterested()
-    deviceBank.itemCount().addValueObserver(setCursorCount)
+    deviceBank.itemCount().addValueObserver(new com.bitwig.extension.callback.IntegerValueChangedCallback {  // Explicit callback
+      override def valueChanged(count: Int): Unit = {
+        setCursorCount(count)
+      }
+    })
 
     cursorDevice.position().markInterested()
-    cursorDevice.position().addValueObserver(setCursorIndex)
+    cursorDevice.position().addValueObserver(new com.bitwig.extension.callback.IntegerValueChangedCallback { // Explicit callback
+      override def valueChanged(index: Int): Unit = {
+        setCursorIndex(index)
+      }
+    })
 
   /**
    * Creates a wrapper for remote controls pages.
@@ -50,10 +66,18 @@ class CursorNormalizedValue:
   def this(cursorRemoteControlsPage: CursorRemoteControlsPage) =
     this()
     cursorRemoteControlsPage.pageCount().markInterested()
-    cursorRemoteControlsPage.pageCount().addValueObserver(setCursorCount)
+    cursorRemoteControlsPage.pageCount().addValueObserver(new com.bitwig.extension.callback.IntegerValueChangedCallback { // Explicit callback
+      override def valueChanged(count: Int): Unit = {
+        setCursorCount(count)
+      }
+    })
 
     cursorRemoteControlsPage.selectedPageIndex().markInterested()
-    cursorRemoteControlsPage.selectedPageIndex().addValueObserver(setCursorIndex)
+    cursorRemoteControlsPage.selectedPageIndex().addValueObserver(new com.bitwig.extension.callback.IntegerValueChangedCallback { // Explicit callback
+      override def valueChanged(index: Int): Unit = {
+        setCursorIndex(index)
+      }
+    })
 
   /**
    * Adds and observer for the wrapped value.
@@ -62,7 +86,11 @@ class CursorNormalizedValue:
    * @return True if this set did not already contain the specified element.
    */
   def addValueObserver(callback: DoubleValueChangedCallback): Boolean =
-    observers.add(callback)
+    observers.add(new com.bitwig.extension.callback.DoubleValueChangedCallback { // Explicit callback
+      override def valueChanged(newValue: Double): Unit = {
+        callback.valueChanged(newValue)
+      }
+    })
 
   /** Handles when the cursor index changes. */
   private def setCursorIndex(index: Int): Unit =

@@ -51,10 +51,19 @@
                   </excludes>
                 </filter>
               </filters>
+              <relocations>
+                <relocation>
+                  <pattern>org.antlr</pattern>
+                  <shadedPattern>org.tomlj.internal.antlr</shadedPattern>
+                </relocation>
+              </relocations>
               <minimizeJar>true</minimizeJar>
             </configuration>
           </execution>
         </executions>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

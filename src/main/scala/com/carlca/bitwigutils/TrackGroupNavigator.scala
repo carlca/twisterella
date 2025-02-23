@@ -1,4 +1,4 @@
-package com.carlca.utils
+package com.carlca.bitwigutils
 
 import com.bitwig.extension.controller.api.CursorTrack
 import com.bitwig.extension.controller.api.Track

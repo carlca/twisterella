@@ -5,7 +5,6 @@ import com.bitwig.extension.controller.api.{HardwareLightVisualState, InternalHa
 import com.carlca.twisterella.TwisterellaExtension
 import java.util.function.Consumer
 import java.util.function.Supplier
-// Add the import
 import com.carlca.twisterella.twister.TwisterLight.AnimationState
 
 /** The RGB light on a twister knob. */

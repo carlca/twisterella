@@ -1,20 +1,19 @@
 package com.carlca.bitwigutils
 
 import com.bitwig.extension.controller.api.*
-import com.carlca.bitwigutils.Settings
-import com.carlca.bitwigutils.Settings.TrackMode
-import com.carlca.logger.Log
+import com.carlca.twisterella.TwisterellaSettings.TrackMode
 
 class TrackBankWrapper(val trackBank: TrackBank):
 
   def getItemAt(index: Int): Option[Track] =
-    if Settings.trackMode == TrackMode.`One to One` then Some(trackBank.getItemAt(index))
-    else getTracks(Settings.trackMode)(index)
+    if com.carlca.twisterella.TwisterellaSettings.trackMode == TrackMode.`One to One`
+    then Some(trackBank.getItemAt(index))
+    else getTracks(com.carlca.twisterella.TwisterellaSettings.trackMode)(index)
   end getItemAt
 
   def getTracks(trackMode: TrackMode): Map[Int, Option[Track]] =
     var tracksMap = Map[Int, Option[Track]]()
-    var idx       = 0
+    var idx = 0
     for i <- 0 until trackBank.itemCount().get() do
       val track = trackBank.getItemAt(i)
       val shouldInclude = trackMode match
@@ -25,43 +24,46 @@ class TrackBankWrapper(val trackBank: TrackBank):
       if shouldInclude && isActivated(i) then
         tracksMap = tracksMap + (idx -> Some(track))
         idx = idx + 1
-    for i <- idx until trackBank.getCapacityOfBank do tracksMap = tracksMap + (i -> None)
+    for i <- idx until trackBank.getCapacityOfBank do
+      tracksMap = tracksMap + (i -> None)
     tracksMap
   end getTracks
 
   def isActivated(trackIndex: Int): Boolean =
-    !Tracks.getBankAncestors(trackIndex).exists(t => t.exists.get() && !t.isActivated.get())
+    !Tracks
+      .getBankAncestors(trackIndex)
+      .exists(t => t.exists.get() && !t.isActivated.get())
 
   def scrollPageBackwards(): Unit = trackBank.scrollPageBackwards()
-  def scrollPageForwards(): Unit  = trackBank.scrollPageForwards()
+  def scrollPageForwards(): Unit = trackBank.scrollPageForwards()
 end TrackBankWrapper
 
 object Tracks:
 
   /** Class instances */
-  private var mHost: ControllerHost                  = null
-  private var mTransport: Transport                  = null
-  private var mTrackBank: TrackBank                  = null
-  private var mMainTrackBank: TrackBank              = null
-  private var mEffectTrackBank: TrackBank            = null
-  private var mMasterTrack: Track                    = null
-  private var mCursorTrack: CursorTrack              = null
-  private var mWrapper: TrackBankWrapper             = null
+  private var mHost: ControllerHost = null
+  private var mTransport: Transport = null
+  private var mTrackBank: TrackBank = null
+  private var mMainTrackBank: TrackBank = null
+  private var mEffectTrackBank: TrackBank = null
+  private var mMasterTrack: Track = null
+  private var mCursorTrack: CursorTrack = null
+  private var mWrapper: TrackBankWrapper = null
   private var mBankAncestors: IndexedSeq[Seq[Track]] = null
 
   /** Property methods */
-  def getTransport: Transport                  = mTransport
-  def getTrackBank: TrackBank                  = mTrackBank
-  def getMainTrackBank: TrackBank              = mMainTrackBank
-  def getEffectTrackBank: TrackBank            = mEffectTrackBank
-  def getMasterTrack: Track                    = mMasterTrack
-  def getCursorTrack: CursorTrack              = mCursorTrack
+  def getTransport: Transport = mTransport
+  def getTrackBank: TrackBank = mTrackBank
+  def getMainTrackBank: TrackBank = mMainTrackBank
+  def getEffectTrackBank: TrackBank = mEffectTrackBank
+  def getMasterTrack: Track = mMasterTrack
+  def getCursorTrack: CursorTrack = mCursorTrack
   def getBankAncestors: IndexedSeq[Seq[Track]] = mBankAncestors
 
   /** Consts */
-  private val MAX_TRACKS: Int    = 0x1000
-  private val MAX_SENDS: Int     = 0x03
-  private val MAX_SCENES: Int    = 0x10
+  private val MAX_TRACKS: Int = 0x1000
+  private val MAX_SENDS: Int = 0x03
+  private val MAX_SCENES: Int = 0x10
   private val MAX_ANCESTORS: Int = 0x10
 
   /** init method */
@@ -98,14 +100,20 @@ object Tracks:
 
   /** Set send methods */
   def setSendA(t: Int, s: Int, v: Int): Unit =
-    mWrapper.getItemAt(t).fold(())(track => track.sendBank().getItemAt(s).set(v / 127.0))
+    mWrapper
+      .getItemAt(t)
+      .fold(())(track => track.sendBank().getItemAt(s).set(v / 127.0))
   def setSendB(t: Int, s: Int, v: Int): Unit =
-    mWrapper.getItemAt(t).fold(())(track => track.sendBank().getItemAt(s).set(v / 127.0))
+    mWrapper
+      .getItemAt(t)
+      .fold(())(track => track.sendBank().getItemAt(s).set(v / 127.0))
   def setSendC(t: Int, s: Int, v: Int): Unit =
-    Settings.panSendMode match
-      case Settings.PanSendMode.`FX Send` =>
-        mWrapper.getItemAt(t).fold(())(track => track.sendBank().getItemAt(s).set(v / 127.0))
-      case Settings.PanSendMode.`Pan` =>
+    com.carlca.twisterella.TwisterellaSettings.panSendMode match
+      case com.carlca.twisterella.TwisterellaSettings.PanSendMode.`FX Send` =>
+        mWrapper
+          .getItemAt(t)
+          .fold(())(track => track.sendBank().getItemAt(s).set(v / 127.0))
+      case com.carlca.twisterella.TwisterellaSettings.PanSendMode.`Pan` =>
         mWrapper.getItemAt(t).fold(())(track => track.pan().set(v / 127.0))
 
   /** Toggle methods */
@@ -114,25 +122,28 @@ object Tracks:
   def toggleArm(t: Int): Unit =
     mWrapper.getItemAt(t).fold(())(track => track.arm().toggle())
   def toggleSolo(t: Int): Unit =
-    if Settings.exclusiveSolo then
-      (0 to 8).foreach(i => mWrapper.getItemAt(i).fold(())(track => track.solo().set(false)))
+    if com.carlca.twisterella.TwisterellaSettings.exclusiveSolo then
+      (0 to 8).foreach(i =>
+        mWrapper.getItemAt(i).fold(())(track => track.solo().set(false))
+      )
     mWrapper.getItemAt(t).fold(())(track => track.solo().toggle())
 
   /** Set bank methods */
-  def setBankLeft(): Unit  = mWrapper.scrollPageForwards()
+  def setBankLeft(): Unit = mWrapper.scrollPageForwards()
   def setBankRight(): Unit = mWrapper.scrollPageBackwards()
 
-  /** Init methods called from MidiMixExtension.init - code must be run from init
-  * initTransport */
+  /** Init methods called from MidiMixExtension.init - code must be run from
+    * init initTransport
+    */
   def initTransport: Unit = mTransport = mHost.createTransport
-
-  import TrackMode.*
 
   /** initTrackBanks */
   private def initTrackBanks: Unit =
     mTrackBank = mHost.createTrackBank(MAX_TRACKS, MAX_SENDS, MAX_SCENES)
-    mMainTrackBank = mHost.createMainTrackBank(MAX_TRACKS, MAX_SENDS, MAX_SCENES)
-    mEffectTrackBank = mHost.createEffectTrackBank(MAX_SENDS, MAX_SENDS, MAX_SCENES)
+    mMainTrackBank =
+      mHost.createMainTrackBank(MAX_TRACKS, MAX_SENDS, MAX_SCENES)
+    mEffectTrackBank =
+      mHost.createEffectTrackBank(MAX_SENDS, MAX_SENDS, MAX_SCENES)
     initInterest(mTrackBank)
     initInterest(mMainTrackBank)
     initInterest(mEffectTrackBank)
@@ -171,12 +182,14 @@ object Tracks:
   /** ancestors */
   def ancestors(track: Track): Seq[Track] =
     var res = List(track)
-    for i <- 0 until MAX_ANCESTORS do res = res :+ res.last.createParentTrack(0, 0)
+    for i <- 0 until MAX_ANCESTORS do
+      res = res :+ res.last.createParentTrack(0, 0)
     res.toSeq
 
   /** initAncestors */
   private def initAncestors: Unit =
-    mBankAncestors = (0 until MAX_TRACKS).map(mTrackBank.getItemAt).map(ancestors)
+    mBankAncestors =
+      (0 until MAX_TRACKS).map(mTrackBank.getItemAt).map(ancestors)
 
   /** initAncestorInterest */
   private def initAncestorInterest: Unit =

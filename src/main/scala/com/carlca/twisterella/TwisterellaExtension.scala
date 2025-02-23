@@ -3,16 +3,16 @@ package com.carlca.twisterella
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.*
-import com.carlca.bitwigutils.Settings
 import com.carlca.bitwigutils.Tracks
 import com.carlca.config.Config
-import com.carlca.logger.Log
+// import com.carlca.logger.Log
 import com.carlca.utils.MathUtil
 
-class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: ControllerHost) extends ControllerExtension(definition, host):
+class TwisterellaExtension(
+    definition: TwisterellaExtensionDefinition,
+    host: ControllerHost
+) extends ControllerExtension(definition, host):
   private val APP_NAME = "com.carlca.Twisterella"
-
-  private var track1: Track = null
 
   var midiIn: MidiIn = null
   var midiOut: MidiOut = null
@@ -26,17 +26,21 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     midiOut = host.getMidiOutPort(0)
     hardwareSurface = host.createHardwareSurface()
 
-    Settings.init(host)
+    TwisterellaSettings.init(host)
     Tracks.init(host)
     initEvents(host)
 
-    Tracks.getTrackBank.getItemAt(0).volume().value().addValueObserver((volume: Double) => {
-      val midiValue = (volume * 127).toInt
-      sendMidiToTwister(0, 0, midiValue)
-    })
+    Tracks.getTrackBank
+      .getItemAt(0)
+      .volume()
+      .value()
+      .addValueObserver((volume: Double) => {
+        val midiValue = (volume * 127).toInt
+        sendMidiToTwister(0, 0, midiValue)
+      })
 
     val initialVolume = Tracks.getVolume(0)
-    sendMidiToTwister(0,0, initialVolume)
+    sendMidiToTwister(0, 0, initialVolume)
 
   end init
 
@@ -55,14 +59,18 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   end initEvents
 
   private def initOnMidiCallback(host: ControllerHost): Unit =
-    midiIn.setMidiCallback((status: Int, data1: Int, data2: Int) => onMidi0(ShortMidiMessage(status, data1, data2)))
+    midiIn.setMidiCallback((status: Int, data1: Int, data2: Int) =>
+      onMidi0(ShortMidiMessage(status, data1, data2))
+    )
 
   private def initOnSysexCallback(host: ControllerHost): Unit =
     midiIn.setSysexCallback(onSysex0(_))
 
   private def onMidi0(msg: ShortMidiMessage): Unit =
     //                                                          track1KnobChannel      track1KnobCC
-    if msg.getStatusByte() == ShortMidiMessage.CONTROL_CHANGE + 0 && msg.getData1() == 0 then
+    if msg.getStatusByte() == ShortMidiMessage.CONTROL_CHANGE + 0 && msg
+        .getData1() == 0
+    then
       val data2 = msg.getData2()
       var volumeChange = 0.0
 
@@ -77,7 +85,11 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
         volumeChange = 0.0
 
       val currentVolume = Tracks.getVolume(0) / 127.0
-      val newVolume = MathUtil.clamp(currentVolume + volumeChange, 0.0, 1.0) // Clamp to 0-1 range
+      val newVolume = MathUtil.clamp(
+        currentVolume + volumeChange,
+        0.0,
+        1.0
+      ) // Clamp to 0-1 range
       Tracks.setVolume(0, (newVolume * 127).toInt) // SET VOLUME HERE
   end onMidi0
 

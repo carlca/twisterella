@@ -3,8 +3,9 @@ package com.carlca.twisterella.twister
 import com.bitwig.extension.controller.api.MidiOut
 import com.carlca.twisterella.TwisterellaExtension
 import com.carlca.utils.MathUtil
+
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Twister light base class. */
 abstract class TwisterLight(extension: TwisterellaExtension, animationMidiInfo: MidiInfo, animationStartValue: Int, brightnessStartValue: Int):

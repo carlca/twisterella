@@ -2,10 +2,10 @@ package com.carlca.twisterella.twister
 
 import com.bitwig.extension.controller.api.DoubleValue
 import com.bitwig.extension.controller.api.SettableRangedValue
-import com.carlca.twisterella.TwisterellaExtension
 import com.carlca.bitwigutils.CursorNormalizedValue
-import com.carlca.utils.MathUtil
+import com.carlca.twisterella.TwisterellaExtension
 import com.carlca.twisterella.twister.TwisterLight.AnimationState
+import com.carlca.utils.MathUtil
 
 /** The ring light on a Twister knob. */
 class TwisterRingLight(extension: TwisterellaExtension, lightMidiInfo: LightMidiInfo) extends TwisterLight(extension, lightMidiInfo.animation, TwisterRingLight.ANIMATION_START_VALUE, TwisterRingLight.BRIGHTNESS_START_VALUE):

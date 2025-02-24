@@ -1,17 +1,10 @@
 package com.carlca.twisterella.settings
 
-import scala.annotation.nowarn
-import com.bitwig.extension.controller.api.{
-  ControllerHost,
-  DocumentState,
-  RelativeHardwarControlBindable,
-  SettableEnumValue,
-  SettableRangedValue,
-  Setting
-}
+import com.bitwig.extension.controller.api.*
 import com.carlca.twisterella.twister.Twister
 import com.carlca.utils.MathUtil
-// import scala.jdk.CollectionConverters._
+
+import scala.annotation.nowarn
 
 /** Color settings for the individual RGB lights in each user mappable bank.
   *

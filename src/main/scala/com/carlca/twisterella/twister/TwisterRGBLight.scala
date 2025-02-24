@@ -1,16 +1,15 @@
 package com.carlca.twisterella.twister
 
 import com.bitwig.extension.api.Color
-import com.bitwig.extension.controller.api.{
-  HardwareLightVisualState,
-  InternalHardwareLightState,
-  MidiOut,
-  MultiStateHardwareLight
-}
+import com.bitwig.extension.controller.api.HardwareLightVisualState
+import com.bitwig.extension.controller.api.InternalHardwareLightState
+import com.bitwig.extension.controller.api.MidiOut
+import com.bitwig.extension.controller.api.MultiStateHardwareLight
 import com.carlca.twisterella.TwisterellaExtension
+import com.carlca.twisterella.twister.TwisterLight.AnimationState
+
 import java.util.function.Consumer
 import java.util.function.Supplier
-import com.carlca.twisterella.twister.TwisterLight.AnimationState
 
 /** The RGB light on a twister knob. */
 class TwisterRGBLight(

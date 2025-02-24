@@ -1,9 +1,14 @@
 package com.carlca.bitwigutils
 
 import com.bitwig.extension.callback.DoubleValueChangedCallback
-import com.bitwig.extension.controller.api.{CursorDevice, CursorRemoteControlsPage, CursorTrack, DeviceBank, TrackBank}
-import scala.collection.mutable
+import com.bitwig.extension.controller.api.CursorDevice
+import com.bitwig.extension.controller.api.CursorRemoteControlsPage
+import com.bitwig.extension.controller.api.CursorTrack
+import com.bitwig.extension.controller.api.DeviceBank
+import com.bitwig.extension.controller.api.TrackBank
 import com.carlca.utils.MathUtil
+
+import scala.collection.mutable
 
 /**
  * Wraps a cursor and bank in order to provide a normalized 0-1 value for the cursor position.

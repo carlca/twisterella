@@ -1,9 +1,14 @@
 package com.carlca.twisterella.twister
 
-import java.awt.event.{ActionEvent, ActionListener}
-import javax.swing.Timer
-import com.bitwig.extension.controller.api.{BooleanValue, ControllerHost, HardwareButton, MidiIn}
+import com.bitwig.extension.controller.api.BooleanValue
+import com.bitwig.extension.controller.api.ControllerHost
+import com.bitwig.extension.controller.api.HardwareButton
+import com.bitwig.extension.controller.api.MidiIn
 import com.carlca.twisterella.TwisterellaExtension
+
+import java.awt.event.ActionEvent
+import java.awt.event.ActionListener
+import javax.swing.Timer
 import scala.collection.mutable
 
 /**

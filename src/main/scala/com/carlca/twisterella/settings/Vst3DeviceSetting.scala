@@ -1,9 +1,11 @@
 package com.carlca.twisterella.settings
 
-import com.bitwig.extension.controller.api.{Device, Parameter}
+import com.bitwig.extension.controller.api.Device
+import com.bitwig.extension.controller.api.Parameter
 import org.tomlj.TomlTable
+
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** VST3 specific device settings.
   *

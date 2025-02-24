@@ -1,10 +1,12 @@
 package com.carlca.twisterella.settings
 
-import java.util.UUID
-import com.bitwig.extension.controller.api.{Device, Parameter}
+import com.bitwig.extension.controller.api.Device
+import com.bitwig.extension.controller.api.Parameter
 import org.tomlj.TomlTable
+
+import java.util.UUID
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 /** Bitwig specific device settings.
   *

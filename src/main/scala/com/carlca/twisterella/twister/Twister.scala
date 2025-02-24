@@ -1,14 +1,15 @@
 package com.carlca.twisterella.twister
 
-import scala.util.boundary, boundary.break
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
-import com.bitwig.extension.controller.api.{
-  ControllerHost,
-  HardwareSurface,
-  MidiIn,
-  MidiOut
-}
+import com.bitwig.extension.controller.api.ControllerHost
+import com.bitwig.extension.controller.api.HardwareSurface
+import com.bitwig.extension.controller.api.MidiIn
+import com.bitwig.extension.controller.api.MidiOut
 import com.carlca.twisterella.TwisterellaExtension
+
+import scala.util.boundary
+
+import boundary.break
 
 /** Twister hardware.
   *

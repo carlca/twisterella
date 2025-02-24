@@ -1,6 +1,7 @@
 package com.carlca.bitwigutils
 
 import com.bitwig.extension.api.Color
+
 import java.util.function.Supplier
 
 class OnOffColorSupplier(onColorInit: Color, offColorInit: Color) extends Supplier[Color]:

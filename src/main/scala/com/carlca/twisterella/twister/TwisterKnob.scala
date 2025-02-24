@@ -1,7 +1,10 @@
 package com.carlca.twisterella.twister
 
 import com.bitwig.extension.api.Color
-import com.bitwig.extension.controller.api.{DoubleValue, HardwareBindable, RelativeHardwareControlBinding, RelativeHardwareKnob}
+import com.bitwig.extension.controller.api.DoubleValue
+import com.bitwig.extension.controller.api.HardwareBindable
+import com.bitwig.extension.controller.api.RelativeHardwareControlBinding
+import com.bitwig.extension.controller.api.RelativeHardwareKnob
 import com.carlca.twisterella.TwisterellaExtension
 
 /** A twister knob, including encoder, shift encoder, button and lights. */

@@ -1,12 +1,13 @@
 package com.carlca.bitwigutils
 
+import com.bitwig.extension.controller.api.ControllerHost
+
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.nio.file.Files
 import java.nio.file.Path
 import scala.collection.mutable.ListBuffer
-import com.bitwig.extension.controller.api.ControllerHost
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object DevUtil:
   @throws[IOException]

@@ -1,6 +1,7 @@
 package com.carlca.twisterella.twister
 
 import com.bitwig.extension.api.Color
+
 import scala.collection.immutable.List
 
 /** Colors from the Twister source code.

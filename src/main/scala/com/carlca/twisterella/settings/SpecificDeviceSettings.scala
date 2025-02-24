@@ -1,10 +1,16 @@
 package com.carlca.twisterella.settings
 
-import java.nio.file.{Path, Paths}
-import org.tomlj.{Toml, TomlParseResult, TomlTable}
+import org.tomlj.Toml
+import org.tomlj.TomlParseResult
+import org.tomlj.TomlTable
+
+import java.nio.file.Path
+import java.nio.file.Paths
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Success, Try}
+import scala.jdk.CollectionConverters.*
+import scala.util.Failure
+import scala.util.Success
+import scala.util.Try
 
 /** Represents data loaded from a specific devices settings file.
   *

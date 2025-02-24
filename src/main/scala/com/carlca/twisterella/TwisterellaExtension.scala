@@ -5,7 +5,6 @@ import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.*
 import com.carlca.bitwigutils.Tracks
 import com.carlca.config.Config
-// import com.carlca.logger.Log
 import com.carlca.utils.MathUtil
 
 class TwisterellaExtension(
@@ -21,25 +20,23 @@ class TwisterellaExtension(
   override def init(): Unit =
     Config.init(APP_NAME)
     val host = getHost
-
     midiIn = host.getMidiInPort(0)
     midiOut = host.getMidiOutPort(0)
     hardwareSurface = host.createHardwareSurface()
-
     TwisterellaSettings.init(host)
     Tracks.init(host)
     initEvents
-
-    Tracks.getTrackBank.getItemAt(0).volume().value().
-      addValueObserver((volume: Double) => {
-        val midiValue = (volume * 127).toInt
-        sendMidiToTwister(0, 0, midiValue)
-      })
-
-    val initialVolume = Tracks.getVolume(0)
-    sendMidiToTwister(0, 0, initialVolume)
-
+    registerTrackVolumeObservers
   end init
+
+  def createTrackVolumeObserver(trackIndex: Int): Unit =
+    Tracks.getVolumeParam(trackIndex).fold(println(s"Warning: No volume parameter found for track $trackIndex"))(
+      parameter => {
+        parameter.value().addValueObserver(volume => sendMidiToTwister(0, 0, (volume * 127).toInt))
+        sendMidiToTwister(0, 0, Tracks.getVolumeLevel(trackIndex))})
+
+  def registerTrackVolumeObservers: Unit =
+    (0 until 16).foreach(createTrackVolumeObserver)
 
   override def exit(): Unit = ()
 
@@ -81,7 +78,7 @@ class TwisterellaExtension(
       else // data2 == 64 (or very close), no change
         volumeChange = 0.0
 
-      val currentVolume = Tracks.getVolume(0) / 127.0
+      val currentVolume = Tracks.getVolumeLevel(0) / 127.0
       val newVolume = MathUtil.clamp(
         currentVolume + volumeChange,
         0.0,

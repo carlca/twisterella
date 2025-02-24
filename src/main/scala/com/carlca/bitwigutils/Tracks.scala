@@ -3,6 +3,8 @@ package com.carlca.bitwigutils
 import com.bitwig.extension.controller.api.*
 import com.carlca.twisterella.TwisterellaSettings.TrackMode
 
+import scala.util.control.NonFatal
+
 class TrackBankWrapper(val trackBank: TrackBank):
 
   def getItemAt(index: Int): Option[Track] =
@@ -87,7 +89,10 @@ object Tracks:
     mWrapper.getItemAt(t).fold(false)(track => track.exists().get())
 
   /** Get volume methods */
-  def getVolume(t: Int): Int =
+  def getVolumeParam(t: Int): Option[Parameter] =
+    try mWrapper.getItemAt(t).map(_.volume()) catch { case NonFatal(e) => None }
+
+  def getVolumeLevel(t: Int): Int =
     mWrapper.getItemAt(t).fold(0)(track => (track.volume().get() * 127).toInt)
 
   def getMasterVolume: Int = (mMasterTrack.volume().get() * 127).toInt

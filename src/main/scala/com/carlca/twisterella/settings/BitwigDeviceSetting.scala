@@ -5,25 +5,28 @@ import com.bitwig.extension.controller.api.{Device, Parameter}
 import org.tomlj.TomlTable
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
-import com.carlca.twisterella.settings.AbstractDeviceSetting
 
-/**
- * Bitwig specific device settings.
- *
- * Contains an ID as well as any parameter IDs that were set during construction.
- */
-class BitwigDeviceSetting private (id: UUID, params: mutable.Map[String, String]) extends AbstractDeviceSetting[UUID, String](id, params):
+/** Bitwig specific device settings.
+  *
+  * Contains an ID as well as any parameter IDs that were set during
+  * construction.
+  */
+class BitwigDeviceSetting private (
+    id: UUID,
+    params: mutable.Map[String, String]
+) extends AbstractDeviceSetting[UUID, String](id, params):
 
   override def createParameter(device: Device, key: String): Parameter =
     device.createSpecificBitwigDevice(id).createParameter(params(key))
 
 object BitwigDeviceSetting:
-  /**
-   * Constructs a BitwigDeviceSetting object from a TOML table.
-   *
-   * @param table The TOML table from which to create the object.
-   * @return A new BitwigDeviceSetting. Throws on errors.
-   */
+  /** Constructs a BitwigDeviceSetting object from a TOML table.
+    *
+    * @param table
+    *   The TOML table from which to create the object.
+    * @return
+    *   A new BitwigDeviceSetting. Throws on errors.
+    */
   def fromToml(table: TomlTable): BitwigDeviceSetting =
     val id = UUID.fromString(table.getString("id"))
 

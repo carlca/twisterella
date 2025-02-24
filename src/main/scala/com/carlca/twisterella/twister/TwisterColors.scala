@@ -2,21 +2,20 @@ package com.carlca.twisterella.twister
 
 import com.bitwig.extension.api.Color
 import scala.collection.immutable.List
-import scala.jdk.CollectionConverters._
 
-/**
- * Colors from the Twister source code.
- *
- * Index corresponds to MIDI values 0 to 127.
- *
- * Note that MIDI values 0 and 127 are special values and won't set the device to the color in the
- * list. Value 0 resets the color override and changes back to the "off color" that was set in the
- * MIDI Fighter Utility. Value 127 sets the color to the "on color" that was set in the MIDI Fighter
- * Utility.
- *
- * The manual states that 126 should be an override color, but this not the case due to a bug in the
- * Twister software. https://github.com/DJ-Tech-Tools/Midi_Fighter_Twister_Open_Source/issues/9
- */
+/** Colors from the Twister source code.
+  *
+  * Index corresponds to MIDI values 0 to 127.
+  *
+  * Note that MIDI values 0 and 127 are special values and won't set the device
+  * to the color in the list. Value 0 resets the color override and changes back
+  * to the "off color" that was set in the MIDI Fighter Utility. Value 127 sets
+  * the color to the "on color" that was set in the MIDI Fighter Utility.
+  *
+  * The manual states that 126 should be an override color, but this not the
+  * case due to a bug in the Twister software.
+  * https://github.com/DJ-Tech-Tools/Midi_Fighter_Twister_Open_Source/issues/9
+  */
 object TwisterColors:
   // All 128 colors from the Twister source code
   val ALL: List[Color] = colorList()

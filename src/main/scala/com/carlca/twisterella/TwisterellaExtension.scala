@@ -28,13 +28,10 @@ class TwisterellaExtension(
 
     TwisterellaSettings.init(host)
     Tracks.init(host)
-    initEvents(host)
+    initEvents
 
-    Tracks.getTrackBank
-      .getItemAt(0)
-      .volume()
-      .value()
-      .addValueObserver((volume: Double) => {
+    Tracks.getTrackBank.getItemAt(0).volume().value().
+      addValueObserver((volume: Double) => {
         val midiValue = (volume * 127).toInt
         sendMidiToTwister(0, 0, midiValue)
       })
@@ -53,17 +50,17 @@ class TwisterellaExtension(
   private def sendMidiToTwister(channel: Int, cc: Int, value: Int): Unit =
     midiOut.sendMidi(ShortMidiMessage.CONTROL_CHANGE + channel, cc, value)
 
-  private def initEvents(host: ControllerHost): Unit =
-    initOnMidiCallback(host)
-    initOnSysexCallback(host)
+  private def initEvents: Unit =
+    initOnMidiCallback
+    initOnSysexCallback
   end initEvents
 
-  private def initOnMidiCallback(host: ControllerHost): Unit =
+  private def initOnMidiCallback: Unit =
     midiIn.setMidiCallback((status: Int, data1: Int, data2: Int) =>
       onMidi0(ShortMidiMessage(status, data1, data2))
     )
 
-  private def initOnSysexCallback(host: ControllerHost): Unit =
+  private def initOnSysexCallback: Unit =
     midiIn.setSysexCallback(onSysex0(_))
 
   private def onMidi0(msg: ShortMidiMessage): Unit =

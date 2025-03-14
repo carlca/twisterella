@@ -3,8 +3,7 @@ package com.carlca.twisterella
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.*
-import com.carlca.bitwigutils.Tracks
-import com.carlca.config.Config
+import com.carlca.bitwiglibrary.Tracks
 import com.carlca.utils.MathUtil
 import com.carlca.logger.Log
 import com.carlca.twisterella.twister.TwisterColors
@@ -15,7 +14,6 @@ import boundary.break
 
 class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: ControllerHost)
   extends ControllerExtension(definition, host):
-  private val APP_NAME = "com.carlca.Twisterella"
   private val STATUS_RANGE = ShortMidiMessage.CONTROL_CHANGE to (ShortMidiMessage.CONTROL_CHANGE + 15)
   private val CC_RANGE = 0 to 15
 
@@ -37,17 +35,16 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   var hardwareSurface: HardwareSurface = null
 
   override def init(): Unit =
-    Config.init(APP_NAME)
+    Log.send("TwisterellaExtension.init")
     val host = getHost
     midiIn = host.getMidiInPort(0)
     midiOut = host.getMidiOutPort(0)
     hardwareSurface = host.createHardwareSurface()
-    TwisterellaSettings.init(host)
+    com.carlca.bitwiglibrary.ExtensionSettings.init(host)
     Tracks.init(host)
     initEvents
     registerTrackVolumeObservers
     // observeTrackColors
-  end init
 
   def createTrackVolumeObserver(trackIndex: Int): Unit =
     Tracks.getVolumeParam(trackIndex).fold(println(s"Warning: No volume parameter found for track $trackIndex"))(
@@ -149,6 +146,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
 
   private def onMidi0(msg: ShortMidiMessage): Unit =
     val (status, channel, cc, data2) = unpackMsg(msg, true)
+    // Check status in range 176 to 191 (0xB0 to 0xBF) and CC in range 0 to 15
     if (STATUS_RANGE contains status) && (CC_RANGE contains cc) then
       processMsg(channel, cc, data2)
 
@@ -165,7 +163,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     val track = cc // Use the CC value directly as the track index
     val currentVolume = Tracks.getVolumeLevel(track) / 127.0
     val newVolume = MathUtil.clamp(currentVolume + volumeChange, 0.0, 1.0) // Clamp to 0-1 range
-    Tracks.setVolume(track, (newVolume * 127).toInt) // SET VOLUME HERE
+    Tracks.setVolume(track, (newVolume * 127).toInt)
     sendMidiToTwister(channel, cc, (newVolume * 127).toInt)
 
   @FunctionalInterface

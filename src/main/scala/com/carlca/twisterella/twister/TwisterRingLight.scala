@@ -2,7 +2,7 @@ package com.carlca.twisterella.twister
 
 import com.bitwig.extension.controller.api.DoubleValue
 import com.bitwig.extension.controller.api.SettableRangedValue
-import com.carlca.bitwigutils.CursorNormalizedValue
+import com.carlca.bitwiglibrary.CursorNormalizedValue
 import com.carlca.twisterella.TwisterellaExtension
 import com.carlca.twisterella.twister.TwisterLight.AnimationState
 import com.carlca.utils.MathUtil

@@ -6,6 +6,8 @@ import com.bitwig.extension.controller.api.*
 import com.carlca.bitwiglibrary.Tracks
 import com.carlca.utils.MathUtil
 import com.carlca.logger.Log
+import com.carlca.bitwiglibrary.ExtensionSettings
+import com.carlca.bitwiglibrary.ExtensionSettings.SettingsCapability
 import com.carlca.twisterella.twister.TwisterColors
 import com.bitwig.extension.api.Color
 import com.bitwig.extension.callback.ColorValueChangedCallback
@@ -35,12 +37,12 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   var hardwareSurface: HardwareSurface = null
 
   override def init(): Unit =
-    Log.send("TwisterellaExtension.init")
     val host = getHost
     midiIn = host.getMidiInPort(0)
     midiOut = host.getMidiOutPort(0)
     hardwareSurface = host.createHardwareSurface()
-    com.carlca.bitwiglibrary.ExtensionSettings.init(host)
+    ExtensionSettings.settingsCapabilities += SettingsCapability.`Track Mapping Behaviour`
+    ExtensionSettings.init(host)
     Tracks.init(host)
     initEvents
     registerTrackVolumeObservers

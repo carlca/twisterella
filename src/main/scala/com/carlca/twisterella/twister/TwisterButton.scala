@@ -51,51 +51,25 @@ class TwisterButton(extension: TwisterellaExtension, midiInfo: MidiInfo, idPrefi
   private var lastReleasedTime: Long = 0L
   private var shiftButton: Option[TwisterButton] = None
 
-  /**
-   * Sets the button that will be used for shift functionality.
-   *
-   * @param shiftButton The button to use for shift functionality.
-   */
+  /** Sets the button that will be used for shift functionality */
   def setShiftButton(shiftButton: TwisterButton): Unit =
     this.shiftButton = Some(shiftButton)
 
-  /**
-   * Sets an observer of the double clicked action. This will then be the only observer.
-   *
-   * A convenience function that clears and then adds the observer.
-   *
-   * @param observer Observer to set to double click action.
-   */
+  /** Sets an observer of the double clicked action. This will then be the only observer */
   def setDoubleClickedObserver(observer: Runnable): Unit =
     _doubleClickedObservers.clear()
     _doubleClickedObservers.add(observer)
 
-  /**
-   * Sets an observer of the shift double clicked action. This will then be the only observer.
-   *
-   * A convenience function that clears and then adds the observers.
-   *
-   * @param shiftObserver Observer to set to shift double click action.
-   */
+  /** Sets an observer of the shift double clicked action. This will then be the only observer */
   def setShiftDoubleClickedObserver(shiftObserver: Runnable): Unit =
     _shiftDoubleClickedObservers.clear()
     _shiftDoubleClickedObservers.add(shiftObserver)
 
-  /**
-   * Adds an observer of the double clicked action.
-   *
-   * @param observer Observer to add to double click action.
-   * @return True if the observer was already added.
-   */
+  /** Adds an observer of the double clicked action */
   def addDoubleClickedObserver(observer: Runnable): Boolean =
     _doubleClickedObservers.add(observer)
 
-  /**
-   * Adds an observer of the shift double clicked action.
-   *
-   * @param shiftObserver Observer to add to shift double click action.
-   * @return True if the observer was already added.
-   */
+  /** Adds an observer of the shift double clicked action */
   def addShiftDoubleClickedObserver(shiftObserver: Runnable): Boolean =
     _shiftDoubleClickedObservers.add(shiftObserver)
 
@@ -107,43 +81,21 @@ class TwisterButton(extension: TwisterellaExtension, midiInfo: MidiInfo, idPrefi
   def clearShiftDoubleClickedObservers(): Unit =
     _shiftDoubleClickedObservers.clear()
 
-  /**
-   * Sets an observer of the clicked action. This will then be the only observer.
-   *
-   * A convenience function that clears and then adds the observer.
-   *
-   * @param observer Observer to set to the clicked action.
-   */
+  /** Sets an observer of the clicked action. This will then be the only observer */
   def setClickedObserver(observer: Runnable): Boolean =
     _clickedObservers.clear()
     _clickedObservers.add(observer)
 
-  /**
-   * Sets an observer of the shift clicked action. This will then be the only observer.
-   *
-   * A convenience function that clears and then adds the observer.
-   *
-   * @param shiftObserver Observer to set to the shift clicked action.
-   */
+  /** Sets an observer of the shift clicked action. This will then be the only observer */
   def setShiftClickedObserver(shiftObserver: Runnable): Boolean =
     _shiftClickedObservers.clear()
     _shiftClickedObservers.add(shiftObserver)
 
-  /**
-   * Adds an observer of the clicked action.
-   *
-   * @param observer Observer to add to the clicked action.
-   * @return True if the observer was already added.
-   */
+  /** Adds an observer of the clicked action */
   def addClickedObserver(observer: Runnable): Boolean =
     _clickedObservers.add(observer)
 
-  /**
-   * Adds an observer of the shift clicked action.
-   *
-   * @param shiftObserver Observer to add to shift clicked action.
-   * @return True if the observer was already added.
-   */
+  /** Adds an observer of the shift clicked action */
   def addShiftClickedObserver(shiftObserver: Runnable): Boolean =
     _shiftClickedObservers.add(shiftObserver)
 
@@ -151,47 +103,25 @@ class TwisterButton(extension: TwisterellaExtension, midiInfo: MidiInfo, idPrefi
   def clearClickedObservers(): Unit =
     _clickedObservers.clear()
 
-  /** Clears all observers of the shift clicked action. */
+  /** Clears all observers of the shift clicked action */
   def clearShiftClickedObservers(): Unit =
     _shiftClickedObservers.clear()
 
-  /**
-   * Sets an observer of the long pressed action. This will then be the only observer.
-   *
-   * A convenience function that clears and then adds the observer.
-   *
-   * @param observer Observer to set to the long pressed action.
-   */
+  /** Sets an observer of the long pressed action. This will then be the only observer */
   def setLongPressedObserver(observer: Runnable): Boolean =
     _longPressedObservers.clear()
     _longPressedObservers.add(observer)
 
-  /**
-   * Sets an observer of the shift long pressed action. This will then be the only observer.
-   *
-   * A convenience function that clears and then adds the observers.
-   *
-   * @param shiftObserver Observer to set to the shift long pressed action.
-   */
+  /** Sets an observer of the shift long pressed action. This will then be the only observer */
   def setShiftLongPressedObserver(shiftObserver: Runnable): Boolean =
     _shiftLongPressedObservers.clear()
     _shiftLongPressedObservers.add(shiftObserver)
 
-  /**
-   * Adds an observer of the long pressed action.
-   *
-   * @param observer Observer to add to the long pressed action.
-   * @return True if the observer was already added.
-   */
+  /** Adds an observer of the long pressed action */
   def addLongPressedObserver(observer: Runnable): Boolean =
     _longPressedObservers.add(observer)
 
-  /**
-   * Adds an observer of the shift long pressed action.
-   *
-   * @param shiftObserver Observer to add to the shift long pressed action.
-   * @return True if the observer was already added.
-   */
+  /** Adds an observer of the shift long pressed action */
   def addShiftLongPressedObserver(shiftObserver: Runnable): Boolean =
     _shiftLongPressedObservers.add(shiftObserver)
 

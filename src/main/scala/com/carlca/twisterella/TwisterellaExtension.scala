@@ -9,6 +9,7 @@ import com.carlca.logger.Log
 import com.carlca.bitwiglibrary.ExtensionSettings
 import com.carlca.bitwiglibrary.ExtensionSettings.SettingsCapability
 import com.carlca.twisterella.twister.TwisterColors
+import com.carlca.twisterella.twister.Twister
 import com.bitwig.extension.api.Color
 import com.bitwig.extension.callback.ColorValueChangedCallback
 import scala.util.boundary
@@ -35,18 +36,39 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   var midiIn: MidiIn = null
   var midiOut: MidiOut = null
   var hardwareSurface: HardwareSurface = null
+  var twister: Twister = null
 
   override def init(): Unit =
-    val host = getHost
     midiIn = host.getMidiInPort(0)
     midiOut = host.getMidiOutPort(0)
     hardwareSurface = host.createHardwareSurface()
+
+    // twister = Twister(this)(using hardwareSurface)
+
     ExtensionSettings.settingsCapabilities += SettingsCapability.`Track Mapping Behaviour`
     ExtensionSettings.init(host)
     Tracks.init(host)
     initEvents
     registerTrackVolumeObservers
-    // observeTrackColors
+    setKnobColor
+
+  def setKnobColor: Unit =
+    val color: Int = 10 // blue
+    val colorChannel: Int = 1
+    for (knobIndex <- 0 to 7) do
+      midiOut.sendMidi(0xB0 + colorChannel, knobIndex, color)
+      Thread.sleep(10)
+
+  // private def turnItBlue: Unit =
+  //   val knob1Index = 0
+  //   val blueColorMidiValue = 0x01
+  //   val rgbAnimationChannel = MidiChannel.RGB_ANIMATION
+  //   val encoderChannel = MidiChannel.ENCODER
+
+  //   val ccForKnob1RgbLight: Int = twister.banks(0).knobs(knob1Index).rgbLight.midiInfo.cc
+
+  //   midiOut.sendMidi(0xB0 + rgbAnimationChannel, ccForKnob1RgbLight, blueColorMidiValue)
+  //   midiOut.sendMidi(0xB0 + encoderChannel, ccForKnob1RgbLight, 127)
 
   def createTrackVolumeObserver(trackIndex: Int): Unit =
     Tracks.getVolumeParam(trackIndex).fold(println(s"Warning: No volume parameter found for track $trackIndex"))(

@@ -34,23 +34,13 @@ class TwisterKnob(extension: TwisterellaExtension, midiInfo: KnobMidiInfo, color
   /** The value of the target that this shift knob has been bound to (0-1). */
   def shiftTargetValue(): DoubleValue = shiftKnob.targetValue()
 
-  /**
-   * Sets the regular sensitivity factor for the knob. If regular sensitivity is active it is
-   * applied immediately.
-   *
-   * @param factor The sensitivity factor to apply.
-   */
+  /** Sets the regular sensitivity factor for the knob. If regular sensitivity is active it is applied immediately */
   def setSensitivity(factor: Double): Unit =
     sensitivity = factor
     if !isFineSensitivity then
       knob.setSensitivity(sensitivity)
 
-  /**
-   * Sets the fine sensitivity factor for the knob. If fine sensitivity is active it is applied
-   * immediately.
-   *
-   * @param factor The sensitivity factor to apply.
-   */
+  /** Sets the fine sensitivity factor for the knob. If fine sensitivity is active it is applied immediately */
   def setFineSensitivity(factor: Double): Unit =
     fineSensitivity = factor
     if isFineSensitivity then
@@ -61,21 +51,11 @@ class TwisterKnob(extension: TwisterellaExtension, midiInfo: KnobMidiInfo, color
     isFineSensitivity = !isFineSensitivity
     knob.setSensitivity(if isFineSensitivity then fineSensitivity else sensitivity)
 
-  /**
-   * Binds the knob to the supplied target.
-   *
-   * @param target Target to bind.
-   * @return The created binding.
-   */
+  /** Binds the knob to the supplied target */
   def setBinding(target: HardwareBindable): RelativeHardwareControlBinding =
     knob.setBinding(target)
 
-  /**
-   * Binds the shift knob to the supplied target.
-   *
-   * @param target Target to bind.
-   * @return The created binding.
-   */
+  /** Binds the shift knob to the supplied target */
   def setShiftBinding(target: HardwareBindable): RelativeHardwareControlBinding =
     shiftKnob.setBinding(target)
 

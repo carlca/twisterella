@@ -16,12 +16,12 @@ import boundary.break
   * All the hardware available on the MIDI Fighter Twister is setup on
   * construction and accessible through this class.
   */
-class Twister(extension: TwisterellaExtension):
+class Twister(extension: TwisterellaExtension)(using val hardwareSurface: HardwareSurface):
   import Twister.MidiChannel
   import Twister.Bank
 
   private val midiOut: MidiOut = extension.midiOut
-  private val hardwareSurface: HardwareSurface = extension.hardwareSurface
+  // private val hardwareSurface: HardwareSurface = extension.hardwareSurface
   private val host: ControllerHost = extension.getHost
 
   private var popupEnabled: Boolean = false

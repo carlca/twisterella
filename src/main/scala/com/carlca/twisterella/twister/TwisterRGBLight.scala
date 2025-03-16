@@ -26,7 +26,7 @@ class TwisterRGBLight(
   def this(extension: TwisterellaExtension, lightMidiInfo: LightMidiInfo) =
     this(extension, lightMidiInfo, Color.nullColor())
 
-  private val midiInfo: MidiInfo = lightMidiInfo.light
+  val midiInfo: MidiInfo = lightMidiInfo.light
 
   private val light: MultiStateHardwareLight =
     extension.hardwareSurface.createMultiStateHardwareLight(
@@ -37,27 +37,12 @@ class TwisterRGBLight(
   light.state().onUpdateHardware(new LightStateSender(midiOut, midiInfo))
   light.setColor(color)
 
-  /** Sets the color of the light.
-    *
-    * @param color
-    *   Desired color.
-    */
   def setColor(color: Color): Unit =
     light.setColor(color)
 
-  /** Sets the color of the light using a raw MIDI value.
-    *
-    * @param value
-    *   Desired color as a MIDI value.
-    */
   def setRawValue(value: Int): Unit =
     light.setColor(TwisterColors.ALL(value))
 
-  /** Sets the color supplier for the light.
-    *
-    * @param colorSupplier
-    *   Color supplier for the light.
-    */
   def setColorSupplier(colorSupplier: Supplier[Color]): Unit =
     light.setColorSupplier(colorSupplier)
 
@@ -83,11 +68,6 @@ class TwisterRGBLight(
         case other: LightState => colorIndex == other.getColorIndex()
         case _                 => false
 
-    /** Converts a color to the the nearest representable color of the twister.
-      *
-      * @param color
-      *   Desired color.
-      */
     private def colorToState(color: Color): Unit =
       // Find if an exact match exists and use this MIDI value if it does
       val existingIndex = TwisterColors.ALL.indexOf(color)

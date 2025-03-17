@@ -8,12 +8,8 @@ import com.carlca.utils.MathUtil
 import com.carlca.logger.Log
 import com.carlca.bitwiglibrary.ExtensionSettings
 import com.carlca.bitwiglibrary.ExtensionSettings.SettingsCapability
-import com.carlca.twisterella.twister.TwisterColors
-import com.carlca.twisterella.twister.Twister
 import com.bitwig.extension.api.Color
 import com.bitwig.extension.callback.ColorValueChangedCallback
-import scala.util.boundary
-import boundary.break
 
 class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: ControllerHost)
   extends ControllerExtension(definition, host):
@@ -36,7 +32,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   var midiIn: MidiIn = null
   var midiOut: MidiOut = null
   var hardwareSurface: HardwareSurface = null
-  var twister: Twister = null
+  // var twister: Twister = null
 
   override def init(): Unit =
     midiIn = host.getMidiInPort(0)
@@ -51,6 +47,20 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     initEvents
     registerTrackVolumeObservers
     setKnobColor
+    listTrackColors
+    testColors
+    listTwisterColors
+
+  def testColors: Unit =
+    Log.time
+    Log.sendColor("██████", 255, 0, 0)
+    Log.sendColor("██████", 0, 255, 0)
+    Log.sendColor("██████", 0, 0, 255)
+
+  def listTwisterColors: Unit =
+    for (i <- 0 until TwisterColors.ALL.size) do
+      val twisterColor = TwisterColors.ALL(i)
+      Log.send(s"Twister Color $i ~").sendColor("██████", twisterColor.getRed255, twisterColor.getGreen255, twisterColor.getBlue255)
 
   def setKnobColor: Unit =
     val color: Int = 10 // blue
@@ -66,6 +76,18 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
         sendMidiToTwister(0, trackIndex, Tracks.getVolumeLevel(trackIndex))
     )
 
+  def listTrackColors: Unit =
+    for (t <- 0 until Bank.NUM_KNOBS) do
+      val colorValue: ColorValue = Tracks.getColorValue(t)
+      colorValue.addValueObserver(new ColorValueChangedCallback {
+        override def valueChanged(red: Float, green: Float, blue: Float): Unit =
+          val bwRGB = Color.fromRGB(red, green, blue)
+          Log.send(s"Track $t ${Tracks.getTrackName(t)} ~").sendColor("██████", bwRGB.getRed255, bwRGB.getGreen255, bwRGB.getBlue255)
+          val twCol = findTwisterColor(bwRGB)
+          val twRGB = TwisterColors.ALL(twCol)
+          Log.sendColor("██████", twRGB.getRed255, bwRGB.getGreen255, bwRGB.getBlue255)
+      })
+
   def registerTrackVolumeObservers: Unit =
     (0 until 16).foreach(createTrackVolumeObserver)
 
@@ -80,7 +102,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
         colorValue.addValueObserver(new ColorValueChangedCallback {
           override def valueChanged(red: Float, green: Float, blue: Float): Unit =
             val bitwigColor = Color.fromRGB(red, green, blue)
-            val twisterColorIndex = findClosestTwisterColorIndex(bitwigColor) //Convert the Bitwig color to twist color
+            val twisterColorIndex = findTwisterColor(bitwigColor) //Convert the Bitwig color to twist color
             Log.send(s"Track $trackIndex Color: Bitwig(${bitwigColor.getRed255},${bitwigColor.getGreen255},${bitwigColor.getBlue255}), TwisterIndex=$twisterColorIndex") //Logging
             setKnobRgbLight(trackIndex, 0, twisterColorIndex) //Set new RGB Light
         })
@@ -91,12 +113,12 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
 
   def updateTrackColor(trackIndex: Int, r: Double, g: Double, b: Double): Unit =
     val bitwigColor = Color.fromRGB(r,g,b) //get and generate color using new API's
-    val twisterColorIndex = findClosestTwisterColorIndex(bitwigColor) //Convert the Bitwig color to twist color
+    val twisterColorIndex = findTwisterColor(bitwigColor) //Convert the Bitwig color to twist color
     Log.send(s"Track $trackIndex Color: Bitwig(${bitwigColor.getRed255},${bitwigColor.getGreen255},${bitwigColor.getBlue255}), TwisterIndex=$twisterColorIndex") //Logging
     setKnobRgbLight(trackIndex, 0, twisterColorIndex) //Set new RGB Light
 
   // Helper function to find the closest color in TwisterColors.ALL
-  def findClosestTwisterColorIndex(bitwigColor: Color): Int =
+  def findTwisterColor(bitwigColor: Color): Int =
     val r = bitwigColor.getRed255
     val g = bitwigColor.getGreen255
     val b = bitwigColor.getBlue255

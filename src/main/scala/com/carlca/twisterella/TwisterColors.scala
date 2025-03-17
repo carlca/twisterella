@@ -1,4 +1,4 @@
-package com.carlca.twisterella.twister
+package com.carlca.twisterella
 
 import com.bitwig.extension.api.Color
 import scala.collection.immutable.List

@@ -59,17 +59,6 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
       midiOut.sendMidi(0xB0 + colorChannel, knobIndex, color)
       Thread.sleep(10)
 
-  // private def turnItBlue: Unit =
-  //   val knob1Index = 0
-  //   val blueColorMidiValue = 0x01
-  //   val rgbAnimationChannel = MidiChannel.RGB_ANIMATION
-  //   val encoderChannel = MidiChannel.ENCODER
-
-  //   val ccForKnob1RgbLight: Int = twister.banks(0).knobs(knob1Index).rgbLight.midiInfo.cc
-
-  //   midiOut.sendMidi(0xB0 + rgbAnimationChannel, ccForKnob1RgbLight, blueColorMidiValue)
-  //   midiOut.sendMidi(0xB0 + encoderChannel, ccForKnob1RgbLight, 127)
-
   def createTrackVolumeObserver(trackIndex: Int): Unit =
     Tracks.getVolumeParam(trackIndex).fold(println(s"Warning: No volume parameter found for track $trackIndex"))(
       parameter =>
@@ -82,14 +71,10 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
 
   // New function to observe track colors
   def observeTrackColors: Unit =
-    val trackBank = Tracks.getTrackBank   // Get the TrackBank
-    for (i <- 0 until Bank.NUM_KNOBS)     // Iterate through the number of knobs that you care about
-      val track = trackBank.getItemAt(i)  // Get the track at that index
-      boundary {
-        if (track == null) then           // Break here because there are null tracks
-          Log.send("break track because it is == null, NumKnobs=" + Bank.NUM_KNOBS)
-          break()
-
+    val trackBank = Tracks.getTrackBank
+    for (i <- 0 until Bank.NUM_KNOBS) do
+      val track = trackBank.getItemAt(i)
+      if track != null then
         val trackIndex = i
         val colorValue: ColorValue = track.color()
         colorValue.addValueObserver(new ColorValueChangedCallback {
@@ -99,12 +84,10 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
             Log.send(s"Track $trackIndex Color: Bitwig(${bitwigColor.getRed255},${bitwigColor.getGreen255},${bitwigColor.getBlue255}), TwisterIndex=$twisterColorIndex") //Logging
             setKnobRgbLight(trackIndex, 0, twisterColorIndex) //Set new RGB Light
         })
-
         track.exists().addValueObserver(exists =>
           if (!exists) then
             setKnobRgbLight(i, 0, 0)
         )
-      }
 
   def updateTrackColor(trackIndex: Int, r: Double, g: Double, b: Double): Unit =
     val bitwigColor = Color.fromRGB(r,g,b) //get and generate color using new API's

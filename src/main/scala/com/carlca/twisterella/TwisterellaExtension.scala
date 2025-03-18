@@ -117,29 +117,25 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     Log.send(s"Track $trackIndex Color: Bitwig(${bitwigColor.getRed255},${bitwigColor.getGreen255},${bitwigColor.getBlue255}), TwisterIndex=$twisterColorIndex") //Logging
     setKnobRgbLight(trackIndex, 0, twisterColorIndex) //Set new RGB Light
 
+  def unpackColor(color: Color): (Int, Int, Int) =
+    val r = color.getRed255
+    val g = color.getGreen255
+    val b = color.getBlue255
+    (r, g, b)
+
   // Helper function to find the closest color in TwisterColors.ALL
   def findTwisterColor(bitwigColor: Color): Int =
-    val r = bitwigColor.getRed255
-    val g = bitwigColor.getGreen255
-    val b = bitwigColor.getBlue255
+    val (r, g, b) = unpackColor(bitwigColor)
     val size = TwisterColors.ALL.size - 1
-    var closestIndex = 0
-    var minDistance = Double.MaxValue //Initialize large distance
-    for (i <- 0 to size) { //Iterate through all the twister colors
-      val twisterColor = TwisterColors.ALL(i) //get twistercolor
-
-      val tr = twisterColor.getRed255()  //red byte
-      val tg = twisterColor.getGreen255() //green byte
-      val tb = twisterColor.getBlue255()  //blue byte
-      val distance = Math.sqrt(  //calculates distance based on red green blue values
-        Math.pow(tr - r, 2) + Math.pow(tg - g, 2) + Math.pow(tb - b, 2) //bitwise for each property
-      )
-      if (distance < minDistance) { //if the previous recorded distance was greater than this one
-        minDistance = distance  //reset the minimum distance to the shorter distance
-        closestIndex = i  //and save this current loop index, because its closest
-      }
-    }
-    closestIndex //return closest index
+    var foundIndex = 0
+    var minDistance = Double.MaxValue
+    for (i <- 0 to size) do
+      val (tr, tg, tb) = unpackColor(TwisterColors.ALL(i))
+      val distance = Math.sqrt(Math.pow(tr - r, 2) + Math.pow(tg - g, 2) + Math.pow(tb - b, 2))
+      if (distance < minDistance) then
+        minDistance = distance
+        foundIndex = i
+    foundIndex
 
   override def exit(): Unit = ()
 

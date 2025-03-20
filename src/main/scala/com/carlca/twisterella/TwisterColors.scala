@@ -2,12 +2,96 @@ package com.carlca.twisterella
 
 import com.bitwig.extension.api.Color
 import scala.collection.immutable.List
+import scala.math._
 
 object TwisterColors:
   val ALL: List[Color] = colorList()
 
   val BITWIG_PARAMETERS: List[Color] = parameterColorList()
 
+  def unpackColor(color: Color): (Int, Int, Int) =
+    val r = color.getRed255
+    val g = color.getGreen255
+    val b = color.getBlue255
+    (r, g, b)
+
+  // Helper function to convert linear RGB to CIE XYZ - part 1: sRGB to linear RGB
+  private def sRgbToLinearRgb(c: Int): Double =
+    val colorFraction = c.toDouble / 255.0
+    if (colorFraction <= 0.04045) then
+      colorFraction / 12.92
+    else
+      pow((colorFraction + 0.055) / 1.055, 2.4)
+
+  // Helper function to convert linear RGB to CIE XYZ - part 2: linear RGB to XYZ
+  private def linearRgbToXyz(rLinear: Double, gLinear: Double, bLinear: Double): (Double, Double, Double) =
+    val x = rLinear * 0.4124564 + gLinear * 0.3575761 + bLinear * 0.1804375
+    val y = rLinear * 0.2126729 + gLinear * 0.7151522 + bLinear * 0.0721750
+    val z = rLinear * 0.0193339 + gLinear * 0.1191920 + bLinear * 0.9503041
+    (x, y, z)
+
+  // Helper function to convert XYZ to CIE Lab - part 1: XYZ to normalized XYZ
+  private def normalizeXyz(value: Double, whitePoint: Double): Double =
+    val normalizedValue = value / whitePoint
+    if (normalizedValue > 0.008856) then
+      pow(normalizedValue, 1.0 / 3.0)
+    else
+      (7.787 * normalizedValue) + (16.0 / 116.0)
+
+  // Main function to convert RGB to CIE Lab
+  def rgbToLab(r: Int, g: Int, b: Int): (Double, Double, Double) =
+    // Standard sRGB conversion to linear RGB
+    val rLinear = sRgbToLinearRgb(r)
+    val gLinear = sRgbToLinearRgb(g)
+    val bLinear = sRgbToLinearRgb(b)
+
+    // Linear RGB to CIE XYZ
+    val (x, y, z) = linearRgbToXyz(rLinear, gLinear, bLinear)
+
+    // Normalize XYZ with D65 white point (standard for sRGB)
+    val xNormalized = normalizeXyz(x, 0.95047) // D65 X = 0.95047
+    val yNormalized = normalizeXyz(y, 1.00000) // D65 Y = 1.00000 (reference white)
+    val zNormalized = normalizeXyz(z, 1.08883) // D65 Z = 1.08883
+
+    // Calculate CIE Lab values
+    val l = (116.0 * yNormalized) - 16.0
+    val a = 500.0 * (xNormalized - yNormalized)
+    val b_lab = 200.0 * (yNormalized - zNormalized) // Renamed to b_lab to avoid name conflict with 'b' from RGB
+    (l, a, b_lab)
+
+  // Modified function to find the closest color in TwisterColors.ALL using CIE Lab distance
+  def findTwisterColorLab(bitwigColor: Color): Int = // Input now explicitly RGB tuple
+    val (r, g, b) = unpackColor(bitwigColor)
+    val (l1, a1, b1_lab) = rgbToLab(r, g, b) // Convert input color to Lab
+    val size = TwisterColors.ALL.size - 1
+    var foundIndex = 0
+    var minDistance = Double.MaxValue
+    for (i <- 0 to size) do
+      val (tr, tg, tb) = unpackColor(TwisterColors.ALL(i))
+      val (l2, a2, b2_lab) = rgbToLab(tr, tg, tb)
+
+      // Euclidean distance in Lab space
+      val distance = Math.sqrt(Math.pow(l2 - l1, 2) + Math.pow(a2 - a1, 2) + Math.pow(b2_lab - b1_lab, 2))
+      if (distance < minDistance) then
+        minDistance = distance
+        foundIndex = i
+    foundIndex
+
+  // Helper function to find the closest color in TwisterColors.ALL
+  def findTwisterColorRGB(bitwigColor: Color): Int =
+    val (r, g, b) = unpackColor(bitwigColor)
+    val size = TwisterColors.ALL.size - 1
+    var foundIndex = 0
+    var minDistance = Double.MaxValue
+    for (i <- 0 to size) do
+      val (tr, tg, tb) = unpackColor(TwisterColors.ALL(i))
+      val distance = Math.sqrt(Math.pow(tr - r, 2) + Math.pow(tg - g, 2) + Math.pow(tb - b, 2))
+      if (distance < minDistance) then
+        minDistance = distance
+        foundIndex = i
+    foundIndex
+
+  /** List based on https://github.com/DJ-TechTools/Midi_Fighter_Twister_Open_Source/blob/master/src/colorMap.c */
   private def colorList(): List[Color] =
     List(
       Color.fromRGB255(0, 0, 0), // 0

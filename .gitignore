@@ -29,7 +29,7 @@ project/target/
 .bsp/
 Dump/
 metals.sbt
-# *.zip
+*.zip
 
 #mill
 out/

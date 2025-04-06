@@ -107,17 +107,19 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
       })
 
   def testSysExTrackColors: Unit =
-    (1 to 127).foreach: index =>
+    (1 until 127).foreach: index =>
       val (r, g, b) = TwisterColors.unpackColor(TwisterColors.ALL(index))
       (0 to 15).foreach: track =>
         twisterController.setKnobRGBColor(track, r, g, b)
+      Log.send(s"r: {$r}  g: {$g}  b: {$b}")
+      Log.sendColor("████████████", r, g, b)
+      Log.sendColor("████████████", r, g, b)
+      Log.sendColor("████████████", r, g, b)
+      Log.sendColor("████████████", r, g, b)
+      Log.sendColor("████████████", r, g, b)
+      Log.sendColor("████████████", r, g, b)
       Thread.sleep(2000)
-    // val random = new Random()
-    // (0 until 16).foreach: track =>
-    //   val r = random.nextInt(128)
-    //   val g = random.nextInt(128)
-    //   val b = random.nextInt(128)
-    //   twisterController.setKnobLedColor(track, r, g, b)
+      Log.cls
 
   def registerTrackVolumeObservers: Unit =
     (0 until 16).foreach(createTrackVolumeObserver)

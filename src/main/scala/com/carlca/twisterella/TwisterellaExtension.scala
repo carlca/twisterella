@@ -1,6 +1,7 @@
 package com.carlca.twisterella
 
 import scala.collection.mutable.ListBuffer
+import scala.util.Random
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.*
@@ -10,17 +11,16 @@ import com.carlca.logger.Log
 import com.carlca.bitwiglibrary.ExtensionSettings
 import com.carlca.bitwiglibrary.ExtensionSettings.SettingsCapability
 import com.bitwig.extension.api.Color
-import com.bitwig.extension.callback.ClipLauncherSlotBankPlaybackStateChangedCallback
 import com.bitwig.extension.callback.ColorValueChangedCallback
+import com.carlca.twisterella.TwisterMidiHelper.TwisterController
 
 class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: ControllerHost)
   extends ControllerExtension(definition, host):
-  private val STATUS_RANGE = ShortMidiMessage.CONTROL_CHANGE to (ShortMidiMessage.CONTROL_CHANGE + 15)
-  private val CC_RANGE = 0 to 15
 
-  private val lock = new Object()
   private val bwList = new ListBuffer[String]
   private val twList = new ListBuffer[String]
+  private val STATUS_RANGE = (0xB0 to 0xB0 + 15)
+  private val CC_RANGE = (0 to 15)
 
   object MidiChannel:
     val ENCODER: Int = 0
@@ -41,27 +41,31 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   var midiIn: MidiIn = null
   var midiOut: MidiOut = null
   var hardwareSurface: HardwareSurface = null
-  // var twister: Twister = null
+
+  var twisterController: TwisterController = null
 
   override def init(): Unit =
     midiIn = host.getMidiInPort(0)
     midiOut = host.getMidiOutPort(0)
+
     hardwareSurface = host.createHardwareSurface()
-
-    // twister = Twister(this)(using hardwareSurface)
-
     ExtensionSettings.settingsCapabilities += SettingsCapability.`Track Mapping Behaviour`
     ExtensionSettings.init(host)
     Tracks.init(host)
+
+    twisterController = new TwisterController(new BitwigMidiOutput(midiOut))
+
     initEvents
     registerTrackVolumeObservers
-    createTrackColorObservers
+    twisterController.enterNativeMode
+    // createTrackColorObservers
+    testSysExTrackColors
 
   def createTrackVolumeObserver(trackIndex: Int): Unit =
     Tracks.getVolumeParam(trackIndex).fold(println(s"Warning: No volume parameter found for track $trackIndex"))(
       parameter =>
-        parameter.value().addValueObserver(volume => sendMidiToTwister(0, trackIndex, (volume * 127).toInt))
-        sendMidiToTwister(0, trackIndex, Tracks.getVolumeLevel(trackIndex))
+        parameter.value().addValueObserver(volume => twisterController.sendMidiToTwister(0, trackIndex, (volume * 127).toInt))
+        twisterController.sendMidiToTwister(0, trackIndex, Tracks.getVolumeLevel(trackIndex))
     )
 
   def getTwisterColor(red: Float, green: Float, blue: Float): Int =
@@ -93,10 +97,27 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
               Log.blank
               bwList.clear
               twList.clear
-            setKnobColor(track, twCol)
+            twisterController.setKnobRGBColor(track, r2, g2, b2)
+            // setKnobColor(track, twCol)
           else
-            setKnobColor(track, getTwisterColor(red, green, blue))
+            val bwColor = Color.fromRGB(red, green, blue)
+            val (r1, g1, b1) = TwisterColors.unpackColor(bwColor)
+            twisterController.setKnobRGBColor(track, r1, g1, b1)
+            // setKnobColor(track, getTwisterColor(red, green, blue))
       })
+
+  def testSysExTrackColors: Unit =
+    (1 to 127).foreach: index =>
+      val (r, g, b) = TwisterColors.unpackColor(TwisterColors.ALL(index))
+      (0 to 15).foreach: track =>
+        twisterController.setKnobRGBColor(track, r, g, b)
+      Thread.sleep(2000)
+    // val random = new Random()
+    // (0 until 16).foreach: track =>
+    //   val r = random.nextInt(128)
+    //   val g = random.nextInt(128)
+    //   val b = random.nextInt(128)
+    //   twisterController.setKnobLedColor(track, r, g, b)
 
   def registerTrackVolumeObservers: Unit =
     (0 until 16).foreach(createTrackVolumeObserver)
@@ -106,8 +127,8 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   override def flush(): Unit =
     hardwareSurface.updateHardware()
 
-  private def sendMidiToTwister(channel: Int, cc: Int, value: Int): Unit =
-    midiOut.sendMidi(ShortMidiMessage.CONTROL_CHANGE + channel, cc, value)
+  // private def sendMidiToTwister(channel: Int, cc: Int, value: Int): Unit =
+  //   midiOut.sendMidi(ShortMidiMessage.CONTROL_CHANGE + channel, cc, value)
 
   private def initEvents: Unit =
     initOnMidiCallback
@@ -131,7 +152,6 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
 
   private def onMidi0(msg: ShortMidiMessage): Unit =
     val (status, channel, cc, data2) = unpackMsg(msg, false)
-    // Check status in range 176 to 191 (0xB0 to 0xBF) and CC in range 0 to 15
     if (STATUS_RANGE contains status) && (CC_RANGE contains cc) then
       processMsg(channel, cc, data2)
 
@@ -149,7 +169,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     val currentVolume = Tracks.getVolumeLevel(track) / 127.0
     val newVolume = MathUtil.clamp(currentVolume + volumeChange, 0.0, 1.0) // Clamp to 0-1 range
     Tracks.setVolume(track, (newVolume * 127).toInt)
-    sendMidiToTwister(channel, cc, (newVolume * 127).toInt)
+    twisterController.sendMidiToTwister(channel, cc, (newVolume * 127).toInt)
 
   @FunctionalInterface
   private def onSysex0(data: String): Unit = ()

@@ -1,7 +1,6 @@
 package com.carlca.twisterella
 
 import scala.collection.mutable.ListBuffer
-import scala.util.Random
 import com.bitwig.extension.api.util.midi.ShortMidiMessage
 import com.bitwig.extension.controller.ControllerExtension
 import com.bitwig.extension.controller.api.*
@@ -22,6 +21,11 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
   private val STATUS_RANGE = (0xB0 to 0xB0 + 15)
   private val CC_RANGE = (0 to 15)
 
+  private val testModeEnabled: Boolean = true
+  private var testRed: Int = 0
+  private var testGreen: Int = 0
+  private var testBlue: Int = 0
+
   object MidiChannel:
     val ENCODER: Int = 0
     val BUTTON: Int = 1
@@ -36,7 +40,7 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     val NUM_KNOBS: Int = 16
 
   object DEBUG:
-    val enabled: Boolean = true
+    val enabled: Boolean = false
 
   var midiIn: MidiIn = null
   var midiOut: MidiOut = null
@@ -58,8 +62,8 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
     initEvents
     registerTrackVolumeObservers
     twisterController.enterNativeMode
-    // createTrackColorObservers
-    testSysExTrackColors
+    createTrackColorObservers
+    // testSysExTrackColors
 
   def createTrackVolumeObserver(trackIndex: Int): Unit =
     Tracks.getVolumeParam(trackIndex).fold(println(s"Warning: No volume parameter found for track $trackIndex"))(
@@ -158,20 +162,56 @@ class TwisterellaExtension(definition: TwisterellaExtensionDefinition, host: Con
       processMsg(channel, cc, data2)
 
   private def processMsg(channel: Int, cc: Int, data2: Int): Unit =
-    var volumeChange = 0.0
-    // val sensitivity = Settings.sensitivity
-    val sensitivity = 50.0
-    if data2 > 64 then // Clockwise rotation
-      volumeChange = (data2 - 64.0) / sensitivity // Positive increment
-    else if data2 < 64 then // Counter-clockwise rotation
-      volumeChange = -(64.0 - data2) / sensitivity // Negative decrement
-    else // data2 == 64 (or very close), no change
-      volumeChange = 0.0
-    val track = cc // Use the CC value directly as the track index
-    val currentVolume = Tracks.getVolumeLevel(track) / 127.0
-    val newVolume = MathUtil.clamp(currentVolume + volumeChange, 0.0, 1.0) // Clamp to 0-1 range
-    Tracks.setVolume(track, (newVolume * 127).toInt)
-    twisterController.sendMidiToTwister(channel, cc, (newVolume * 127).toInt)
+    if testModeEnabled then
+      var change = 0
+      if data2 > 64 then // Clockwise rotation
+        change = (data2 - 64)
+      else if data2 < 64 then // Counter-clockwise rotation
+        change = -(64 - data2)
+      else // data2 == 64 (or very close), no change
+        change = 0
+      cc match
+        case 0 => // Knob 1 (index 0) - Red
+          testRed += change
+          testRed = MathUtil.clamp(testRed, 0, 255)
+        case 1 => // Knob 2 (index 1) - Green
+          testGreen += change
+          testGreen = MathUtil.clamp(testGreen, 0, 255)
+        case 2 => // Knob 3 (index 2) - Blue
+          testBlue += change
+          testBlue = MathUtil.clamp(testBlue, 0, 255)
+        case _ => // For other knobs, do nothing
+          ()
+
+      if change != 0 && cc <= 2 then
+        Log.cls
+        Log.send(s"RGB Test Color: R=${testRed}, G=${testGreen}, B=${testBlue}")
+        Log.send("------------")
+        Log.sendColor("████████████", testRed, testGreen, testBlue)
+        Log.sendColor("████████████", testRed, testGreen, testBlue)
+        Log.sendColor("████████████", testRed, testGreen, testBlue)
+        Log.sendColor("████████████", testRed, testGreen, testBlue)
+        Log.sendColor("████████████", testRed, testGreen, testBlue)
+        Log.sendColor("████████████", testRed, testGreen, testBlue)
+        Log.send("------------")
+        twisterController.setKnobRGBColor(15, testRed, testGreen, testBlue)
+        Thread.sleep(1)
+
+    else
+      var volumeChange = 0.0
+      // val sensitivity = Settings.sensitivity
+      val sensitivity = 50.0
+      if data2 > 64 then // Clockwise rotation
+        volumeChange = (data2 - 64.0) / sensitivity // Positive increment
+      else if data2 < 64 then // Counter-clockwise rotation
+        volumeChange = -(64.0 - data2) / sensitivity // Negative decrement
+      else // data2 == 64 (or very close), no change
+        volumeChange = 0.0
+      val track = cc // Use the CC value directly as the track index
+      val currentVolume = Tracks.getVolumeLevel(track) / 127.0
+      val newVolume = MathUtil.clamp(currentVolume + volumeChange, 0.0, 1.0) // Clamp to 0-1 range
+      Tracks.setVolume(track, (newVolume * 127).toInt)
+      twisterController.sendMidiToTwister(channel, cc, (newVolume * 127).toInt)
 
   @FunctionalInterface
   private def onSysex0(data: String): Unit = ()
